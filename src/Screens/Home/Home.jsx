@@ -6,37 +6,52 @@ import Button from '@mui/material/Button';
 import BasicCard from "../../Components/Card";
 import { collection, addDoc, getDocs, doc, deleteDoc, updateDoc, where, query } from "firebase/firestore";
 import { db } from "../../Confiq/router-config/config-firebase/firebaseConfig";
-  // Assuming 'Config' is the correct path
 import Typography from '@mui/material/Typography';
 import { useNavigate } from 'react-router-dom';
 import { onAuthStateChanged } from "firebase/auth";
-import { auth } from '../../Confiq/router-config/config-firebase/firebaseConfig';  // Assuming 'Config' is the correct path
+import { auth } from '../../Confiq/router-config/config-firebase/firebaseConfig';
 
 const Home = () => {
   const [todo, setTodo] = useState([]);
+  const [user, setUser] = useState(null);
   const todoInputRef = useRef();
 
   useEffect(() => {
-    async function getDataFromFirestore() {
-      const querySnapshot = await getDocs(collection(db, "todo"));
-      const newData = querySnapshot.docs.map((doc) => ({
-        docId: doc.id,
-        ...doc.data()
-      }));
-      setTodo(newData);
-    }
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        setUser(user);
+        const getDataFromFirestore = async (uid) => {
+          const q = query(collection(db, 'todo'), where('uid', '==', uid));
+          const querySnapshot = await getDocs(q);
+      
+          const newData = querySnapshot.docs.map((doc) => ({
+            docId: doc.id,
+            ...doc.data(),
+          }));
+      
+          setTodo(newData);
+        };
+        getDataFromFirestore(user.uid);
+      } else {
+        setUser(null);
+        setTodo([]); // Reset the todo list when the user logs out
+      }
+    });
 
-    getDataFromFirestore();
+    return () => unsubscribe();
   }, []);
+
+
 
   const addTodo = async (e) => {
     e.preventDefault();
     const newTodo = todoInputRef.current.value;
     try {
-      const docRef = await addDoc(collection(db, "todo"), {
+      const docRef = await addDoc(collection(db, 'todo'), {
         todo: newTodo,
+        uid: user.uid, // Include the user's UID
       });
-      setTodo([...todo, { todo: newTodo, docId: docRef.id }]);
+      setTodo([...todo, { todo: newTodo, docId: docRef.id, uid: user.uid }]);
       todoInputRef.current.value = '';
     } catch (e) {
       console.error("Error adding document: ", e);

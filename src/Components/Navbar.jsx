@@ -13,13 +13,26 @@ import Tooltip from '@mui/material/Tooltip';
 import MenuItem from '@mui/material/MenuItem';
 import AdbIcon from '@mui/icons-material/Adb';
 import { useNavigate } from 'react-router-dom'
+import { auth } from '../Confiq/router-config/config-firebase/firebaseConfig';
+import { signOut } from 'firebase/auth';
+import UserContext from '../contextUser/UserContext';
+import { useContext } from 'react';
 
-const pages = ['home', 'login', 'register'];
+
 const settings = ['home', 'login', 'register'];
 
 function ResponsiveAppBar() {
     const [anchorElNav, setAnchorElNav] = React.useState(null);
     const [anchorElUser, setAnchorElUser] = React.useState(null);
+
+    const {isUser , setIsUser} = useContext(UserContext);
+
+    let pages = ['home', 'login', 'register', 'logout'];
+    if(isUser){
+        pages = ['home', 'logout'];
+    }else{
+        pages = ['home', 'login', 'register'];
+    }
 
     //use navigate
     const navigate = useNavigate();
@@ -34,9 +47,17 @@ function ResponsiveAppBar() {
     const handleCloseNavMenu = (page) => {
         setAnchorElNav(null);
         console.log('button clicked', page);
-        // navigate (`/${page}`)
         if (page === 'home') {
             navigate('/')
+            return
+        }
+        if (page === 'logout') {
+            signOut(auth).then(() => {
+                setIsUser(false);
+                navigate('/login');
+            }).catch((error) => {
+                console.log(error);
+            });
             return
         }
         navigate(`/${page}`)

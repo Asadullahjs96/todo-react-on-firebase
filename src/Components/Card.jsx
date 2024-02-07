@@ -41,8 +41,14 @@ export default function BasicCard({ title, editTodo, deleteTodo, index }) {
         </div>
       ) : (
         <div>
-          <input type="text" placeholder='edited value' ref={editedValueRef} />
-          <button onClick={editedTodoFunc}>Save</button>
+          <CardContent>
+            <input type="text" placeholder='Edit Your Todo' ref={editedValueRef} />
+          </CardContent>
+          <CardActions>
+            <Button size="small" onClick={editedTodoFunc}>
+              Save
+            </Button>
+          </CardActions>
         </div>
       )}
     </Card>

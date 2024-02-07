@@ -1,24 +1,17 @@
-import React, { useRef, useState } from 'react'
-import { TextField, Button, Box, CircularProgress, Typography } from '@mui/material'
-import {auth} from '../../Confiq/router-config/config-firebase/firebaseConfig'
-import { useNavigate } from 'react-router-dom'
-import { signInWithEmailAndPassword } from "firebase/auth";
+import React, { useRef, useState, useContext } from 'react';
+import { TextField, Button, Box, CircularProgress, Typography } from '@mui/material';
+import { auth } from '../../Confiq/router-config/config-firebase/firebaseConfig';
+import { useNavigate } from 'react-router-dom';
+import { signInWithEmailAndPassword } from 'firebase/auth';
+import UserContext from '../../contextUser/UserContext';
+
+
 const Login = () => {
-
-  // use state
-
   const [loading, setLoading] = useState(false);
-
-  //get form value
-
-  const email = useRef()
-  const password = useRef()
-
-    //navigate
-    const navigate = useNavigate()
-
-    //use context
-    const {setIsUser} = useContext(UserContext);
+  const email = useRef();
+  const password = useRef();
+  const navigate = useNavigate();
+  const { setIsUser } = useContext(UserContext);
 
   //Login function
 
